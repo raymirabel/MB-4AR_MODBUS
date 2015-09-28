@@ -39,8 +39,8 @@
   0x0008      int     R/W   00000      04095       00000     ---         Salida analógica 2
   0x0009      int     R/W   00000      04095       00000     ---         Salida analógica 3
   0x000A      int     R/W   00000      04095       00000     ---         Salida analógica 4 
-    
 */
+
 #include <ModbusSlave.h>
 #include <Wire.h>
 #include "mcp4728.h"
