@@ -4,6 +4,9 @@
   28/09/2015 - v1.00
   - Versión inicial
   
+  26/01/2017 - v1.01
+  - Se añade dirección modbus para lectura de entradas analogicas como digitales
+  
   Sketch para usar el módulo MB4AR como esclavo modbus RTU bajo RS485
   Copyright (c) 2015 Raimundo Alfonso
   Ray Ingeniería Electrónica, S.L.
@@ -39,8 +42,9 @@
   0x0008      int     R/W   00000      04095       00000     ---         Salida analógica 2
   0x0009      int     R/W   00000      04095       00000     ---         Salida analógica 3
   0x000A      int     R/W   00000      04095       00000     ---         Salida analógica 4 
+  0x000B      int     R     00000      00015       00000     ---         Entradas analogicas como digitales y en formato binario
+    
 */
-
 #include <ModbusSlave.h>
 #include <Wire.h>
 #include "mcp4728.h"
@@ -74,7 +78,8 @@ enum {
         MB_DA1,          // Salida analogica 1        
         MB_DA2,          // Salida analogica 2
         MB_DA3,          // Salida analogica 3
-        MB_DA4,          // Salida analogica 4        
+        MB_DA4,          // Salida analogica 4   
+        MB_DIG_IN,       // Entradas digitales     
         MB_REGS	 	 // Numero total de registros
 };
 int regs[MB_REGS];	
@@ -121,12 +126,10 @@ void setup()  {
 void loop()  { 
   unsigned long curMillis = millis();          // Get current time
 
-  // Asigna valores a la tabla modbus...
-  regs[MB_AN1] = analogRead(A0);
-  regs[MB_AN2] = analogRead(A1);
-  regs[MB_AN3] = analogRead(A2);
-  regs[MB_AN4] = analogRead(A3);  
- // regs[MB_DIG_IN] = creaDINbyte(); 
+  // Lee entradas analogicas...
+  leeAIN();
+
+  // Lee dipswitch...
   regs[MB_DIPSW] = leeDIPSW();
       
   // Espera lectura de tramas modbus
@@ -186,5 +189,33 @@ byte leeDIPSW(void){
     a5 = 0;
   // Calcula dirección...
   return(a0 + a1*2 + a2*4 + a3*8 + a4*16 + a5*32);
+}
+
+// Rutina para leer entradas analogicas...
+void leeAIN(void){
+  byte a0,a1,a2,a3;
+  int an0,an1,an2,an3;
+
+  an0 = analogRead(A0);
+  an1 = analogRead(A1);
+  an2 = analogRead(A2);
+  an3 = analogRead(A3); 
+
+  regs[MB_AN1] = an0;
+  regs[MB_AN2] = an1;
+  regs[MB_AN3] = an2;
+  regs[MB_AN4] = an3;
+  
+  // Convierte entradas analogicas a digitales...
+  a0 = 0;
+  a1 = 0;
+  a2 = 0;
+  a3 = 0;
+  if(an0 > 512) a0 = 1;
+  if(an1 > 512) a1 = 1;
+  if(an2 > 512) a2 = 1;
+  if(an3 > 512) a3 = 1;
+
+  regs[MB_DIG_IN] = (a0 + a1*2 + a2*4 + a3*8);
 }
 
