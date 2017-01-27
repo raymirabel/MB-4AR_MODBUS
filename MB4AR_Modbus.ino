@@ -26,6 +26,8 @@
   - Parametros de comunicación RTU, 9600 baudios,n,8,1
   
   * MAPA MODBUS
+  
+	MODO R: FUNCION 1 - READ BLOCK COILS REGISTERS (dirección coil = dirección * 16) 
     MODO R: FUNCION 3 - READ BLOCK HOLDING REGISTERS
     MODO W: FUNCION 6 - WRITE SINGLE HOLDING REGISTER
     
